@@ -8,7 +8,7 @@ class ObjectRepository:
         return username
 
     def getPasswordforMongoDB(self):
-        password = "Kavita@123"
+        password = "Karan@12345"
         return password
 
     def getLoginCloseButton(self):

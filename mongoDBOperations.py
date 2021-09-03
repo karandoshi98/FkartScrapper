@@ -1,3 +1,5 @@
+import urllib
+
 import pymongo
 import pandas as pd
 import json
@@ -11,9 +13,10 @@ class MongoDBManagement:
         """
         try:
             self.username = username
-            self.password = password
-            self.url = "mongodb+srv://{}:{}@testcluster.fjvlj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority".format(
-                self.username, self.password)
+            self.password = urllib.parse.quote_plus(password)
+            self.url = "mongodb+srv://{}:{}@cluster0.aifsx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority".format(self.username,self.password)
+            #self.url = "mongodb+srv://{}:{}@testcluster.fjvlj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority".format(
+             #   self.username, self.password)
             # self.url = 'localhost:27017'
         except Exception as e:
             raise Exception(f"(__init__): Something went wrong on initiation process\n" + str(e))
@@ -24,6 +27,7 @@ class MongoDBManagement:
         """
         try:
             mongo_client = pymongo.MongoClient(self.url)
+            print(mongo_client)
             return mongo_client
         except Exception as e:
             raise Exception("(getMongoDBClientObject): Something went wrong on creation of client object\n" + str(e))

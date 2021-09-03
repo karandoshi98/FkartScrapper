@@ -45,8 +45,8 @@ class threadClass:
         global collection_name, free_status
         free_status = False
         collection_name = self.scrapper_object.getReviewsToDisplay(expected_review=self.expected_review,
-                                                                   searchString=self.searchString, username='Kavita',
-                                                                   password='kavita1610',
+                                                                   searchString=self.searchString, username='admin',
+                                                                   password='Karan@12345',
                                                                    review_count=self.review_count)
         logger.info("Thread run completed")
         free_status = True
@@ -68,13 +68,17 @@ def index():
             review_count = 0
             scrapper_object = FlipkratScrapper(executable_path=ChromeDriverManager().install(),
                                                chrome_options=chrome_options)
-            mongoClient = MongoDBManagement(username='Kavita', password='kavita1610')
+            mongoClient = MongoDBManagement(username='admin', password='Karan@12345')
             scrapper_object.openUrl("https://www.flipkart.com/")
             logger.info("Url hitted")
             scrapper_object.login_popup_handle()
             logger.info("login popup handled")
             scrapper_object.searchProduct(searchString=searchString)
             logger.info(f"Search begins for {searchString}")
+
+            if mongoClient.isCollectionPresent(collection_name=searchString, db_name=db_name) == False:
+                mongoClient.createDatabase(db_name)
+
             if mongoClient.isCollectionPresent(collection_name=searchString, db_name=db_name):
                 response = mongoClient.findAllRecords(db_name=db_name, collection_name=searchString)
                 reviews = [i for i in response]
@@ -82,7 +86,7 @@ def index():
                     result = [reviews[i] for i in range(0, expected_review)]
                     scrapper_object.saveDataFrameToFile(file_name="static/scrapper_data.csv",
                                                         dataframe=pd.DataFrame(result))
-                    logger.info("Data saved in scrapper file")
+                    logger.info("Data fetched from cache and saved in scrapper_data file")
                     return render_template('results.html', rows=result)  # show the results to user
                 else:
                     review_count = len(reviews)
@@ -110,7 +114,7 @@ def feedback():
         if collection_name is not None:
             scrapper_object = FlipkratScrapper(executable_path=ChromeDriverManager().install(),
                                                chrome_options=chrome_options)
-            mongoClient = MongoDBManagement(username='Kavita', password='kavita1610')
+            mongoClient = MongoDBManagement(username='admin', password='Karan@12345')
             rows = mongoClient.findAllRecords(db_name="Flipkart-Scrapper", collection_name=collection_name)
             reviews = [i for i in rows]
             dataframe = pd.DataFrame(reviews)
